@@ -1,8 +1,9 @@
 #include <p101_fsm/fsm.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static void notifier(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state from_state_id, p101_fsm_state to_state_id);
+static void notifier(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
 
 int main(void)
 {
@@ -24,11 +25,19 @@ int main(void)
     }
     else
     {
-        printf("Before set: %p\n", (void *)p101_fsm_info_get_bad_change_state_notifier(fsm));
+        p101_fsm_info_bad_change_state_notifier_func notifier_func;
+
+        notifier_func = p101_fsm_info_get_bad_change_state_notifier(fsm);
+        printf("Before set: 0x%lx\n", (uintptr_t)notifier_func);
+
         p101_fsm_info_set_bad_change_state_notifier(fsm, notifier);
-        printf("After set: %p\n", (void *)p101_fsm_info_get_bad_change_state_notifier(fsm));
+        notifier_func = p101_fsm_info_get_bad_change_state_notifier(fsm);
+        printf("After set: 0x%lx\n", (uintptr_t)notifier_func);
+
         p101_fsm_info_set_bad_change_state_notifier(fsm, NULL);
-        printf("After set (NULL): %p\n", (void *)p101_fsm_info_get_bad_change_state_notifier(fsm));
+        notifier_func = p101_fsm_info_get_bad_change_state_notifier(fsm);
+        printf("After set (NULL): 0x%lx\n", (uintptr_t)notifier_func);
+
         p101_fsm_info_destroy(env, &fsm);
     }
 
@@ -38,7 +47,7 @@ int main(void)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static void notifier(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state from_state_id, p101_fsm_state to_state_id)
+static void notifier(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id)
 {
     P101_TRACE(env);
 }

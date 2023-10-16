@@ -1,4 +1,5 @@
 #include <p101_fsm/fsm.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,9 +23,15 @@ int main(void)
     }
     else
     {
-        printf("Before set: %p\n", (void *)p101_fsm_info_get_bad_change_state_handler(fsm));
+        p101_fsm_info_bad_change_state_handler_func handler;
+
+        handler = p101_fsm_info_get_bad_change_state_handler(fsm);
+        printf("Before set: 0x%lx\n", (uintptr_t)handler);
+
         p101_fsm_info_set_bad_change_state_handler(fsm, p101_fsm_info_default_bad_change_state_handler);
-        printf("After set: %p\n", (void *)p101_fsm_info_get_bad_change_state_handler(fsm));
+        handler = p101_fsm_info_get_bad_change_state_handler(fsm);
+        printf("After set: 0x%lx\n", (uintptr_t)handler);
+
         p101_fsm_info_set_bad_change_state_handler(fsm, NULL);
 
         if(p101_error_has_error(fsm_error))
@@ -32,7 +39,9 @@ int main(void)
             fprintf(stderr, "Error: %s\n", p101_error_get_message(fsm_error));
         }
 
-        printf("After set (NULL): %p\n", (void *)p101_fsm_info_get_bad_change_state_handler(fsm));
+        handler = p101_fsm_info_get_bad_change_state_handler(fsm);
+        printf("After set (NULL): 0x%lx\n", (uintptr_t)handler);
+
         p101_fsm_info_destroy(env, &fsm);
     }
 

@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
             {C,             ERROR,         state_error},
             {ERROR,         P101_FSM_EXIT, NULL       }
         };
-        p101_fsm_state from_state;
-        p101_fsm_state to_state;
-        int            count;
+        p101_fsm_state_t from_state;
+        p101_fsm_state_t to_state;
+        int              count;
 
         if(bad)
         {

@@ -5,7 +5,6 @@ project(p101_fsm_examples
         DESCRIPTION ""
         LANGUAGES C)
 
-# Add the subdirectory for fsm_run with its own binary directory
 add_subdirectory(create_destroy "${CMAKE_BINARY_DIR}/create_destroy")
 add_subdirectory(get_name "${CMAKE_BINARY_DIR}/get_name")
 add_subdirectory(set_get_bad_change_state_handler "${CMAKE_BINARY_DIR}/set_get_bad_change_state_handler")

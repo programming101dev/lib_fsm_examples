@@ -104,7 +104,7 @@ static void parse_arguments(const struct p101_env *env, int argc, char *argv[], 
             }
             case 'w':
             {
-                *will = optarg;
+                *will = true;
                 break;
             }
             case 'h':
@@ -145,12 +145,12 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char 
         fprintf(stderr, "%s\n", message);
     }
 
-    fprintf(stderr, "Usage: %s [-h] [-a] [-b] -c <value> [arg1 arg2 ...]\n", program_name);
+    fprintf(stderr, "Usage: %s [-h] [-b] [-d] [-w]\n", program_name);
     fputs("Options:\n", stderr);
-    fputs("  -h          Display this help message\n", stderr);
-    fputs("  -a          Option 'a'\n", stderr);
-    fputs("  -b          Option 'b'\n", stderr);
-    fputs("  -c <value>  Option 'c' (required) with value\n", stderr);
+    fputs("  -h   Display this help message\n", stderr);
+    fputs("  -b   Display 'bad' transitions\n", stderr);
+    fputs("  -w   Display 'will' transitions 'd'\n", stderr);
+    fputs("  -d   Display 'did' transitions\n", stderr);
     exit(exit_code);
 }
 

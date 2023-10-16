@@ -53,7 +53,7 @@ endif()
 
 target_link_directories(create_destroy_example PRIVATE /usr/local/lib${LIBSUFFIX})
 
-# Enable sanitizer checks
+# Enable sanitizer checksconst
 target_link_libraries(create_destroy_example PRIVATE ${SANITIZER_FLAGS_STRING})
 
 # Link libraries

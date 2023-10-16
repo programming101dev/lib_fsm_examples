@@ -61,6 +61,7 @@ target_link_libraries(get_name_example PRIVATE p101_error)
 target_link_libraries(get_name_example PRIVATE p101_env)
 target_link_libraries(get_name_example PRIVATE p101_c)
 target_link_libraries(get_name_example PRIVATE p101_posix)
+target_link_libraries(get_name_example PRIVATE p101_fsm)
 
 # Common compiler flags
 set(STANDARD_FLAGS

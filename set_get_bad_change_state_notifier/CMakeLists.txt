@@ -61,6 +61,7 @@ target_link_libraries(set_get_bad_change_state_notifier_example PRIVATE p101_err
 target_link_libraries(set_get_bad_change_state_notifier_example PRIVATE p101_env)
 target_link_libraries(set_get_bad_change_state_notifier_example PRIVATE p101_c)
 target_link_libraries(set_get_bad_change_state_notifier_example PRIVATE p101_posix)
+target_link_libraries(set_get_bad_change_state_notifier_example PRIVATE p101_fsm)
 
 # Common compiler flags
 set(STANDARD_FLAGS

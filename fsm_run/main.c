@@ -79,6 +79,11 @@ int main(int argc, char *argv[])
         p101_fsm_info_destroy(env, &fsm);
     }
 
+    free(fsm_env);
+    free(env);
+    p101_error_reset(error);
+    free(error);
+
     return EXIT_SUCCESS;
 }
 

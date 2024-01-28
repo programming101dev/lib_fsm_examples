@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         }
 
         count = 0;
-        p101_fsm_run(fsm, &from_state, &to_state, &count, transitions);
+        p101_fsm_run(fsm, &from_state, &to_state, &count, transitions, sizeof(transitions));
         p101_fsm_info_destroy(env, &fsm);
     }
 

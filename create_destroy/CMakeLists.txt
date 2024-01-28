@@ -25,21 +25,25 @@ function(split_string_into_list _input_string _output_list)
     set(${_output_list} ${_split_list} PARENT_SCOPE)
 endfunction()
 
-# Import warning_flags.txt
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/warning_flags.txt" WARNING_FLAGS_STRING)
-split_string_into_list("${WARNING_FLAGS_STRING}" WARNING_FLAGS_LIST)
-
 # Import analyzer_flags.txt
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/analyzer_flags.txt" ANALYZER_FLAGS_STRING)
 split_string_into_list("${ANALYZER_FLAGS_STRING}" ANALYZER_FLAGS_LIST)
 
 # Import debug_flags.txt
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/debug_flags.txt" DEBUG_FLAGSSTRING)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/debug_flags.txt" DEBUG_FLAGS_STRING)
 split_string_into_list("${DEBUG_FLAGS_STRING}" DEBUG_FLAGS_LIST)
 
-# Import sanitizer_flags.txt
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/sanitizer_flags.txt" SANITIZER_FLAGS_STRING)
-split_string_into_list("${SANITIZER_FLAGS_STRING}" SANITIZER_FLAGS_LIST)
+# Import instrumentation_flags.txt
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/instrumentation_flags.txt" INSTRUMENTATION_FLAGS_STRING)
+split_string_into_list("${INSTRUMENTATION_FLAGS_STRING}" INSTRUMENTATION_FLAGS_LIST)
+
+# Import optimization_flags.txt
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/optimization_flags.txt" OPTIMIZATION_FLAGS_STRING)
+split_string_into_list("${OPTIMIZATION_FLAGS_STRING}" OPTIMIZATION_FLAGS_LIST)
+
+# Import warning_flags.txt
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../.flags/${COMPILER_NAME}/warning_flags.txt" WARNING_FLAGS_STRING)
+split_string_into_list("${WARNING_FLAGS_STRING}" WARNING_FLAGS_LIST)
 
 # Check if the system uses 64-bit libraries
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
@@ -114,7 +118,7 @@ add_custom_target(create_destroy_example_tidy
 
 # Add a custom target for cppcheck
 add_custom_target(create_destroy_example_cppcheck
-        COMMAND ${CPPCHECK} --error-exitcode=1 --force --quiet --library=posix --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --suppress=unmatchedSuppression --suppress=checkersReport --suppress=checkersReport -I/usr/local/include ${SOURCES} ${HEADER_LIST}
+        COMMAND ${CPPCHECK} --error-exitcode=1 --force --quiet --library=posix --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --suppress=unmatchedSuppression --suppress=checkersReport -I/usr/local/include ${SOURCES} ${HEADER_LIST}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Running cppcheck"
 )

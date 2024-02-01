@@ -63,8 +63,6 @@ target_link_libraries(create_destroy_example PRIVATE ${SANITIZER_FLAGS_STRING})
 # Link libraries
 target_link_libraries(create_destroy_example PRIVATE p101_error)
 target_link_libraries(create_destroy_example PRIVATE p101_env)
-target_link_libraries(create_destroy_example PRIVATE p101_c)
-target_link_libraries(create_destroy_example PRIVATE p101_posix)
 target_link_libraries(create_destroy_example PRIVATE p101_fsm)
 
 # Common compiler flags

@@ -124,8 +124,6 @@ target_link_options(get_name_example PRIVATE ${INSTRUMENTATION_FLAGS_LIST})
 # Link libraries
 target_link_libraries(get_name_example PRIVATE p101_error)
 target_link_libraries(get_name_example PRIVATE p101_env)
-target_link_libraries(get_name_example PRIVATE p101_c)
-target_link_libraries(get_name_example PRIVATE p101_posix)
 target_link_libraries(get_name_example PRIVATE p101_fsm)
 
 # Common compiler flags
@@ -180,7 +178,7 @@ add_custom_target(get_name_example_tidy
 
 # Add a custom target for cppcheck
 add_custom_target(get_name_example_cppcheck
-    COMMAND ${CPPCHECK} --error-exitcode=1 --force --quiet --library=posix --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --suppress=unmatchedSuppression -I/usr/local/include ${SOURCES} ${HEADER_LIST}
+    COMMAND ${CPPCHECK} --error-exitcode=1 --force --quiet --library=posix --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --suppress=unmatchedSuppression --suppress=checkersReport -I/usr/local/include ${SOURCES} ${HEADER_LIST}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Running cppcheck"
 )

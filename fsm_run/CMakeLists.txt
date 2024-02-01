@@ -124,7 +124,6 @@ target_link_options(fsm_run_example PRIVATE ${INSTRUMENTATION_FLAGS_LIST})
 # Link libraries
 target_link_libraries(fsm_run_example PRIVATE p101_error)
 target_link_libraries(fsm_run_example PRIVATE p101_env)
-target_link_libraries(fsm_run_example PRIVATE p101_c)
 target_link_libraries(fsm_run_example PRIVATE p101_posix)
 target_link_libraries(fsm_run_example PRIVATE p101_fsm)
 

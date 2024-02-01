@@ -1,4 +1,4 @@
-# c-examples Repository Guide
+# lib_fsm_examples Repository Guide
 
 Welcome to the `lib fsm examples` repository. This guide will help you set up and run the provided scripts.
 

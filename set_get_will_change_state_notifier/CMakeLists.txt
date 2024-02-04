@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 
 project(set_get_will_change_state_notifier_example
     VERSION 0.0.1

@@ -59,21 +59,6 @@ int main(int argc, char *argv[])
         p101_fsm_state_t to_state;
         int              count;
 
-        if(bad)
-        {
-            p101_fsm_info_set_bad_change_state_notifier(fsm, p101_fsm_info_default_bad_change_state_notifier);
-        }
-
-        if(will)
-        {
-            p101_fsm_info_set_will_change_state_notifier(fsm, p101_fsm_info_default_will_change_state_notifier);
-        }
-
-        if(did)
-        {
-            p101_fsm_info_set_did_change_state_notifier(fsm, p101_fsm_info_default_did_change_state_notifier);
-        }
-
         count = 0;
         p101_fsm_run(fsm, &from_state, &to_state, &count, transitions, sizeof(transitions));
         p101_fsm_info_destroy(env, &fsm);

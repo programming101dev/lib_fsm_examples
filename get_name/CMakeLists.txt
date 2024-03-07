@@ -140,6 +140,11 @@ target_link_directories(get_name_example PRIVATE /usr/local/lib${LIBSUFFIX})
 target_link_options(get_name_example PRIVATE ${INSTRUMENTATION_FLAGS_LIST})
 
 # Link libraries
+find_library(LIB_pthread NAMES pthread)
+if(LIB_pthread)
+    target_link_libraries(get_name_example PRIVATE ${LIB_pthread})
+endif()
+
 target_link_libraries(get_name_example PRIVATE p101_error)
 target_link_libraries(get_name_example PRIVATE p101_env)
 target_link_libraries(get_name_example PRIVATE p101_fsm)

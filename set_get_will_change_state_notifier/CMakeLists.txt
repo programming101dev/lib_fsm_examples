@@ -140,6 +140,11 @@ target_link_directories(set_get_will_change_state_notifier_example PRIVATE /usr/
 target_link_options(set_get_will_change_state_notifier_example PRIVATE ${INSTRUMENTATION_FLAGS_LIST})
 
 # Link libraries
+find_library(LIB_pthread NAMES pthread)
+if(LIB_pthread)
+    target_link_libraries(set_get_will_change_state_notifier_example PRIVATE ${LIB_pthread})
+endif()
+
 target_link_libraries(set_get_will_change_state_notifier_example PRIVATE p101_error)
 target_link_libraries(set_get_will_change_state_notifier_example PRIVATE p101_env)
 target_link_libraries(set_get_will_change_state_notifier_example PRIVATE p101_fsm)

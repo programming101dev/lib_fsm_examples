@@ -142,6 +142,11 @@ target_link_directories(create_destroy_example PRIVATE /usr/local/lib${LIBSUFFIX
 target_link_libraries(create_destroy_example PRIVATE ${SANITIZER_FLAGS_STRING})
 
 # Link libraries
+find_library(LIB_pthread NAMES pthread)
+if(LIB_pthread)
+    target_link_libraries(create_destroy_example PRIVATE ${LIB_pthread})
+endif()
+
 target_link_libraries(create_destroy_example PRIVATE p101_error)
 target_link_libraries(create_destroy_example PRIVATE p101_env)
 target_link_libraries(create_destroy_example PRIVATE p101_fsm)

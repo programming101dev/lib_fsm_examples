@@ -21,7 +21,7 @@ enum application_states
     ERROR,
 };
 
-#define UNKNOWN_OPTION_MESSAGE_LEN 24
+#define UNKNOWN_OPTION_MESSAGE_LEN 24       // NOLINT(cppcoreguidelines-macro-to-enum,modernize-macro-to-enum)
 
 int main(int argc, char *argv[])
 {

@@ -553,7 +553,7 @@ process_flags()
         warning_flags+=("-Wauto-storage-class")
         warning_flags+=("-Wauto-var-id")
         warning_flags+=("-Wbind-to-temporary-copy")
-        warning_flags+=("-Wbinding-in-condition")
+#        warning_flags+=("-Wbinding-in-condition")
         warning_flags+=("-Wcall-to-pure-virtual-from-ctor-dtor")
 
         # C++ options

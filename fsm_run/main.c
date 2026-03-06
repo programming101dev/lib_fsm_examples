@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     did   = false;
     parse_arguments(env, argc, argv, &bad, &will, &did);
     fsm_error = p101_error_create(false);
-    fsm_env   = p101_env_create(error, true, NULL);
+    fsm_env   = p101_env_create(fsm_error, true, NULL);
     fsm       = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, NULL);
 
     if(p101_error_has_error(error))
@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
     }
 
     free(fsm_env);
+    p101_error_reset(fsm_error);
+    free(fsm_error);
     free(env);
     p101_error_reset(error);
     free(error);

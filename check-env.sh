@@ -10,7 +10,7 @@ cppcheck_name="cppcheck"
 
 usage()
 {
-    echo "Usage: $0 -c <C compiler> [-f <clang-format>] [-t <clang-tidy>] [-k <cppcheck>]"
+    echo "Usage: $0 -c <C compiler> -x <C++ compiler> [-f <clang-format>] [-t <clang-tidy>] [-k <cppcheck>]"
     echo "  -c c compiler     Specify the c compiler name (e.g. gcc or clang)"
     echo "  -f clang-format   Specify the clang-format name (e.g. clang-tidy or clang-tidy-17)"
     echo "  -t clang-tidy     Specify the clang-tidy name (e.g. clang-tidy or clang-tidy-17)"
@@ -72,7 +72,7 @@ missing_count=0
 
 # Loop through the list of tools
 for tool in "${tools[@]}"; do
-    check_tool "$tool" || ((missing_count++))
+    check_tool "$tool" || missing_count=$((missing_count + 1))
 done
 
 # Return the count of missing tools
@@ -80,4 +80,3 @@ echo "Total missing tools: $missing_count"
 
 # Exit with the count of missing tools as the status code
 exit "$missing_count"
-

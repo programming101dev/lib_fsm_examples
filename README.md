@@ -6,9 +6,8 @@ Welcome to the `lib fsm examples` repository. This guide will help you set up an
 
 1. [Cloning the Repository](#cloning-the-repository)
 2. [Prerequisites](#Prerequisites)
-3. [Running the `generate-cmakelists.sh` Script](#running-the-generate-cmakelistssh-script)
-4. [Running the `change-compiler.sh` Script](#running-the-change-compilersh-script)
-5. [Running the `build.sh` Script](#running-the-buildsh-script)
+3. [Running the `change-compiler.sh` Script](#running-the-change-compilersh-script)
+4. [Running the `build.sh` Script](#running-the-buildsh-script)
 
 ## **Cloning the Repository**
 
@@ -44,14 +43,6 @@ You will need to install:
 - [libp101_env](https://github.com/programming101dev/lib_env)
 - [libp101_posix](https://github.com/programming101dev/lib_posix)
 - [libp101_fsm](https://github.com/programming101dev/lib_fsm)
-
-## **Running the generate-cmakelists.sh Script**
-
-You will need to create the CMakeLists.txt file:
-
-```bash
-./generate-cmakelists.sh
-```
 
 ## **Running the change-compiler.sh Script**
 

@@ -10,7 +10,7 @@ P101_USAGE
 esac
 
 if [ ! -f "./CMakeLists.txt" ]; then
-  echo "You must run ./generate-cmakelists.sh first"
+  echo "CMakeLists.txt is missing; restore it from the repository"
   exit 1
 fi
 

@@ -57,6 +57,25 @@ if [ -z "$c_compiler" ]; then
   usage
 fi
 
+resolve_tool() {
+  local tool="$1"
+  if [[ "$tool" = /* ]]; then
+    [[ -x "$tool" ]] || { echo "Error: '$tool' not executable" >&2; exit 2; }
+    printf '%s\n' "$tool"
+    return 0
+  fi
+
+  local found
+  found="$(command -v "$tool" 2>/dev/null || true)"
+  [[ -n "$found" ]] || { echo "Error: '$tool' not found in PATH" >&2; exit 2; }
+  printf '%s\n' "$found"
+}
+
+CC_PATH="$(resolve_tool "$c_compiler")"
+CLANG_FORMAT_PATH="$(resolve_tool "$clang_format_name")"
+CLANG_TIDY_PATH="$(resolve_tool "$clang_tidy_name")"
+CPPCHECK_PATH="$(resolve_tool "$cppcheck_name")"
+
 if ! $sanitizers_passed; then
   if [ -f "sanitizers.txt" ]; then
     # Strip all whitespace and ignore comments after '#'
@@ -75,17 +94,17 @@ rm -rf build
 mkdir -p build
 
 echo "Configuring with:"
-echo "  CC               = $c_compiler"
-echo "  clang-format     = $clang_format_name"
-echo "  clang-tidy       = $clang_tidy_name"
-echo "  cppcheck         = $cppcheck_name"
+echo "  CC               = $CC_PATH"
+echo "  clang-format     = $CLANG_FORMAT_PATH"
+echo "  clang-tidy       = $CLANG_TIDY_PATH"
+echo "  cppcheck         = $CPPCHECK_PATH"
 echo "  sanitizers       = ${sanitizers:-<none>}"
 
 cmake -S . -B build \
-  -DCMAKE_C_COMPILER="$c_compiler" \
-  -DCLANG_FORMAT_NAME="$clang_format_name" \
-  -DCLANG_TIDY_NAME="$clang_tidy_name" \
-  -DCPPCHECK_NAME="$cppcheck_name" \
+  -DCMAKE_C_COMPILER="$CC_PATH" \
+  -DCLANG_FORMAT_NAME="$CLANG_FORMAT_PATH" \
+  -DCLANG_TIDY_NAME="$CLANG_TIDY_PATH" \
+  -DCPPCHECK_NAME="$CPPCHECK_PATH" \
   -DSANITIZER_LIST="$sanitizers" \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON

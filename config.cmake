@@ -46,6 +46,7 @@ set(create_destroy_HEADERS "")
 set(create_destroy_LINK_LIBRARIES
         p101_error
         p101_env
+        p101_tool_event
         p101_c
         p101_posix
         p101_fsm
@@ -83,7 +84,7 @@ set(get_name_LINK_LIBRARIES
 )
 
 set(set_get_bad_change_state_handler_SOURCES
-        create_destroy/main.c
+        set_get_bad_change_state_handler/main.c
 )
 
 set(set_get_bad_change_state_handler_HEADERS "")

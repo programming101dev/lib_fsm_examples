@@ -59,17 +59,17 @@ int main(int argc, char *argv[])
     }
     else
     {
-        static struct p101_fsm_transition transitions[] = {
-            {P101_FSM_INIT, A,             a          },
-            {A,             B,             b          },
-            {B,             C,             c          },
-            {C,             A,             a          },
-            {C,             ERROR,         state_error},
-            {ERROR,         P101_FSM_EXIT, NULL       }
+        static const struct p101_fsm_transition transitions[] = {
+            {P101_FSM_INIT, A,     a          },
+            {A,             B,     b          },
+            {B,             C,     c          },
+            {C,             A,     a          },
+            {C,             ERROR, state_error}
         };
-        p101_fsm_state_t from_state;
-        p101_fsm_state_t to_state;
-        int              count;
+        p101_fsm_state_t    from_state;
+        p101_fsm_state_t    to_state;
+        p101_fsm_run_result result;
+        int                 count;
 
         if(bad)
         {
@@ -86,8 +86,12 @@ int main(int argc, char *argv[])
             p101_fsm_info_set_did_change_state_notifier(fsm, did_change_state_notifier_func);
         }
 
-        count = 0;
-        p101_fsm_run(fsm, &from_state, &to_state, &count, transitions, sizeof(transitions));
+        count  = 0;
+        result = p101_fsm_run(fsm, &from_state, &to_state, &count, transitions, sizeof(transitions) / sizeof(transitions[0]));
+        if(result != P101_FSM_RUN_EXITED && p101_error_has_no_error(error) && p101_error_has_no_error(fsm_error))
+        {
+            P101_ERROR_RAISE_USER(error, "FSM stopped before exit", 1);
+        }
 
         if(p101_error_has_error(fsm_error))
         {

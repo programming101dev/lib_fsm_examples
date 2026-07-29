@@ -4,11 +4,14 @@
 
 int main(void)
 {
-    struct p101_error    *error;
-    struct p101_env      *env;
-    struct p101_error    *fsm_error;
-    struct p101_env      *fsm_env;
-    struct p101_fsm_info *fsm;
+    struct p101_error                      *error;
+    struct p101_env                        *env;
+    struct p101_error                      *fsm_error;
+    struct p101_env                        *fsm_env;
+    struct p101_fsm_info                   *fsm;
+    static const struct p101_fsm_transition transitions[] = {
+        {P101_FSM_INIT, P101_FSM_USER_START, p101_fsm_exit_immediately},
+    };
 
     error     = p101_error_create(false);
     env       = p101_env_create(error, NULL);
@@ -18,7 +21,7 @@ int main(void)
 
     if(p101_error_has_no_error(fsm_error))
     {
-        fsm = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, NULL);
+        fsm = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, transitions, sizeof(transitions) / sizeof(transitions[0]), NULL);
     }
 
     if(p101_error_has_error(error))
@@ -31,7 +34,7 @@ int main(void)
     }
     else
     {
-        p101_fsm_info_destroy(env, &fsm);
+        p101_fsm_info_destroy(env, fsm_error, &fsm);
     }
 
     p101_env_destroy(fsm_env);

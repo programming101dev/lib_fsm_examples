@@ -2,16 +2,19 @@
 #include <p101_fsm/fsm.h>
 #include <stdlib.h>
 
-static p101_fsm_state_t custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
+static void custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
 
 int main(void)
 {
-    struct p101_error    *error;
-    struct p101_env      *env;
-    struct p101_error    *fsm_error;
-    struct p101_env      *fsm_env;
-    struct p101_fsm_info *fsm;
-    int                   ret_val;
+    struct p101_error                      *error;
+    struct p101_env                        *env;
+    struct p101_error                      *fsm_error;
+    struct p101_env                        *fsm_env;
+    struct p101_fsm_info                   *fsm;
+    int                                     ret_val;
+    static const struct p101_fsm_transition transitions[] = {
+        {P101_FSM_INIT, P101_FSM_USER_START, p101_fsm_exit_immediately},
+    };
 
     ret_val   = EXIT_FAILURE;
     error     = p101_error_create(false);
@@ -22,7 +25,7 @@ int main(void)
 
     if(p101_error_has_no_error(fsm_error))
     {
-        fsm = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, NULL);
+        fsm = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, transitions, sizeof(transitions) / sizeof(transitions[0]), NULL);
     }
 
     if(p101_error_has_error(error) || p101_error_has_error(fsm_error))
@@ -52,7 +55,7 @@ int main(void)
     }
 
 done:
-    p101_fsm_info_destroy(env, &fsm);
+    p101_fsm_info_destroy(env, fsm_error, &fsm);
     p101_env_destroy(fsm_env);
     p101_error_destroy(fsm_error);
     p101_env_destroy(env);
@@ -61,12 +64,13 @@ done:
     return ret_val;
 }
 
-static p101_fsm_state_t custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id)
+static void custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)
 {
     (void)env;
     (void)err;
     (void)info;
     (void)from_state_id;
     (void)to_state_id;
-    return P101_FSM_EXIT;
+    (void)sink;
+    p101_fsm_decide_exit(decision);
 }

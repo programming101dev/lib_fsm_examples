@@ -3,15 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void             parse_arguments(const struct p101_env *env, int argc, char *argv[], bool *bad, bool *will, bool *did);
-_Noreturn static void   usage(const char *program_name, int exit_code, const char *message);
-static p101_fsm_state_t a(const struct p101_env *env, struct p101_error *err, void *arg);
-static p101_fsm_state_t b(const struct p101_env *env, struct p101_error *err, void *arg);
-static p101_fsm_state_t c(const struct p101_env *env, struct p101_error *err, void *arg);
-static p101_fsm_state_t state_error(const struct p101_env *env, struct p101_error *err, void *arg);
-static void             will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
-static void             did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, p101_fsm_state_t next_state_id);
-static p101_fsm_state_t bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
+static void           parse_arguments(const struct p101_env *env, int argc, char *argv[], bool *bad, bool *will, bool *did);
+_Noreturn static void usage(const char *program_name, int exit_code, const char *message);
+static void           a(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void           b(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void           c(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void           state_error(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void           will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
+static void           did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, p101_fsm_state_t next_state_id);
+static void           bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
 
 enum application_states
 {
@@ -19,6 +19,14 @@ enum application_states
     B,
     C,
     ERROR,
+};
+
+static const struct p101_fsm_transition transitions[] = {
+    {P101_FSM_INIT, A,     a          },
+    {A,             B,     b          },
+    {B,             C,     c          },
+    {C,             A,     a          },
+    {C,             ERROR, state_error}
 };
 
 #define UNKNOWN_OPTION_MESSAGE_LEN 24    // NOLINT(cppcoreguidelines-macro-to-enum,modernize-macro-to-enum)
@@ -46,7 +54,7 @@ int main(int argc, char *argv[])
 
     if(p101_error_has_no_error(fsm_error))
     {
-        fsm = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, NULL);
+        fsm = p101_fsm_info_create(env, error, "test-fsm", fsm_env, fsm_error, transitions, sizeof(transitions) / sizeof(transitions[0]), NULL);
     }
 
     if(p101_error_has_error(error))
@@ -59,21 +67,13 @@ int main(int argc, char *argv[])
     }
     else
     {
-        static const struct p101_fsm_transition transitions[] = {
-            {P101_FSM_INIT, A,     a          },
-            {A,             B,     b          },
-            {B,             C,     c          },
-            {C,             A,     a          },
-            {C,             ERROR, state_error}
-        };
-        p101_fsm_state_t    from_state;
-        p101_fsm_state_t    to_state;
-        p101_fsm_run_result result;
-        int                 count;
+        struct p101_fsm_step_result last_step;
+        p101_fsm_run_result         result;
+        int                         count;
 
         if(bad)
         {
-            p101_fsm_info_set_bad_change_state_handler(fsm, bad_change_state_notifier_func);
+            p101_fsm_info_set_bad_change_state_notifier(fsm, bad_change_state_notifier_func);
         }
 
         if(will)
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
         }
 
         count  = 0;
-        result = p101_fsm_run(fsm, &from_state, &to_state, &count, transitions, sizeof(transitions) / sizeof(transitions[0]));
+        result = p101_fsm_run(fsm, &count, NULL, &last_step);
         if(result != P101_FSM_RUN_EXITED && p101_error_has_no_error(error) && p101_error_has_no_error(fsm_error))
         {
             P101_ERROR_RAISE_USER(error, "FSM stopped before exit", 1);
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Application error: %s\n", p101_error_get_message(error));
         }
 
-        p101_fsm_info_destroy(env, &fsm);
+        p101_fsm_info_destroy(env, fsm_error, &fsm);
     }
 
     p101_env_destroy(fsm_env);
@@ -189,31 +189,35 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static p101_fsm_state_t a(const struct p101_env *env, struct p101_error *err, void *arg)    // cppcheck-suppress constParameterCallback
+static void a(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)    // cppcheck-suppress constParameterCallback
 {
     int *count;
 
     P101_TRACE(env);
+    (void)err;
+    (void)sink;
     count = ((int *)arg);
     printf("a called with %d\n", *count);
     *count += 1;
 
-    return B;
+    p101_fsm_decide_transition(decision, B);
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static p101_fsm_state_t b(const struct p101_env *env, struct p101_error *err, void *arg)    // cppcheck-suppress constParameterCallback
+static void b(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)    // cppcheck-suppress constParameterCallback
 {
     int *count;
 
     P101_TRACE(env);
+    (void)err;
+    (void)sink;
     count = ((int *)arg);
     printf("b called with %d\n", *count);
     *count += 1;
 
-    return C;
+    p101_fsm_decide_transition(decision, C);
 }
 
 #pragma GCC diagnostic pop
@@ -221,12 +225,14 @@ static p101_fsm_state_t b(const struct p101_env *env, struct p101_error *err, vo
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static p101_fsm_state_t c(const struct p101_env *env, struct p101_error *err, void *arg)    // cppcheck-suppress constParameterCallback
+static void c(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)    // cppcheck-suppress constParameterCallback
 {
     int             *count;
     p101_fsm_state_t next_state;
 
     P101_TRACE(env);
+    (void)err;
+    (void)sink;
     count = ((int *)arg);
     printf("c called with %d\n", *count);
     *count += 1;
@@ -240,7 +246,7 @@ static p101_fsm_state_t c(const struct p101_env *env, struct p101_error *err, vo
         next_state = A;
     }
 
-    return next_state;
+    p101_fsm_decide_transition(decision, next_state);
 }
 
 #pragma GCC diagnostic pop
@@ -248,11 +254,13 @@ static p101_fsm_state_t c(const struct p101_env *env, struct p101_error *err, vo
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-static p101_fsm_state_t state_error(const struct p101_env *env, struct p101_error *err, void *arg)    // cppcheck-suppress constParameterCallback
+static void state_error(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)    // cppcheck-suppress constParameterCallback
 {
     P101_TRACE(env);
-
-    return P101_FSM_EXIT;
+    (void)err;
+    (void)arg;
+    (void)sink;
+    p101_fsm_decide_exit(decision);
 }
 
 #pragma GCC diagnostic pop
@@ -270,10 +278,8 @@ static void did_change_state_notifier_func(const struct p101_env *env, struct p1
     printf("%s did change from %d to %d\n", p101_fsm_info_get_name(env, info), from_state_id, to_state_id);
 }
 
-static p101_fsm_state_t bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id)    // cppcheck-suppress constParameterCallback
+static void bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id)    // cppcheck-suppress constParameterCallback
 {
     P101_TRACE(env);
     printf("%s can't change from %d to %d\n", p101_fsm_info_get_name(env, info), from_state_id, to_state_id);
-
-    return to_state_id;
 }

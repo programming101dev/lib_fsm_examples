@@ -48,7 +48,7 @@ set(create_destroy_LINK_LIBRARIES
         p101_env
         p101_tool_event
         p101_c
-        p101_posix
+        p101_cli
         p101_fsm
         m
 )
@@ -63,7 +63,6 @@ set(fsm_run_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
-        p101_posix
         p101_fsm
         m
 )
@@ -78,7 +77,6 @@ set(get_name_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
-        p101_posix
         p101_fsm
         m
 )
@@ -93,7 +91,6 @@ set(set_get_bad_change_state_handler_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
-        p101_posix
         p101_fsm
         m
 )
@@ -108,7 +105,6 @@ set(set_get_bad_change_state_notifier_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
-        p101_posix
         p101_fsm
         m
 )
@@ -123,7 +119,6 @@ set(set_get_did_change_state_notifier_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
-        p101_posix
         p101_fsm
         m
 )
@@ -138,7 +133,6 @@ set(set_get_will_change_state_notifier_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
-        p101_posix
         p101_fsm
         m
 )

@@ -41,7 +41,7 @@ If you are missing tools follow these [instructions](https://docs.google.com/doc
 You will need to install:
 - [libp101_error](https://github.com/programming101dev/lib_error)
 - [libp101_env](https://github.com/programming101dev/lib_env)
-- [libp101_posix](https://github.com/programming101dev/lib_posix)
+- [libp101_cli](https://github.com/programming101dev/lib_cli)
 - [libp101_fsm](https://github.com/programming101dev/lib_fsm)
 
 ## **Running the change-compiler.sh Script**

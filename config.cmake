@@ -63,6 +63,7 @@ set(fsm_run_LINK_LIBRARIES
         p101_error
         p101_env
         p101_c
+        p101_cli
         p101_fsm
         m
 )

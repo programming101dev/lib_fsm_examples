@@ -1,5 +1,5 @@
-#include <p101_fsm/fsm.h>
 #include <p101_cli/cli.h>
+#include <p101_fsm/fsm.h>
 #include <stdio.h>
 #include <stdlib.h>
 

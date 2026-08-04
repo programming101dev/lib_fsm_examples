@@ -3,15 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void           parse_arguments(const struct p101_env *env, int argc, char *argv[], bool *bad, bool *will, bool *did);
-_Noreturn static void usage(const char *program_name, int exit_code, const char *message);
-static void           a(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
-static void           b(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
-static void           c(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
-static void           state_error(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
-static void           will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
-static void           did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, p101_fsm_state_t next_state_id);
-static void           bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
+static void parse_arguments(const struct p101_env *env, struct p101_error *error, int argc, char *argv[], bool *bad, bool *will, bool *did, bool *show_help);
+static void usage(const char *program_name, const char *message);
+static void a(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void b(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void c(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void state_error(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
+static void did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, p101_fsm_state_t next_state_id);
+static void bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
 
 enum application_states
 {
@@ -38,16 +38,38 @@ int main(int argc, char *argv[])
     bool                  bad;
     bool                  will;
     bool                  did;
+    bool                  show_help;
     struct p101_error    *fsm_error;
     struct p101_env      *fsm_env;
     struct p101_fsm_info *fsm;
 
-    error = p101_error_create(false);
-    env   = p101_env_create(error, NULL);
-    bad   = false;
-    will  = false;
-    did   = false;
-    parse_arguments(env, argc, argv, &bad, &will, &did);
+    error     = p101_error_create(false);
+    env       = p101_env_create(error, NULL);
+    bad       = false;
+    will      = false;
+    did       = false;
+    show_help = false;
+    parse_arguments(env, error, argc, argv, &bad, &will, &did, &show_help);
+    if(show_help || p101_error_has_error(error))
+    {
+        const char *message;
+        int         exit_status;
+
+        message     = NULL;
+        exit_status = EXIT_FAILURE;
+        if(p101_error_has_error(error))
+        {
+            message = p101_error_get_message(error);
+        }
+        if(show_help)
+        {
+            exit_status = EXIT_SUCCESS;
+        }
+        usage(argv[0], message);
+        p101_env_destroy(env);
+        p101_error_destroy(error);
+        return exit_status;
+    }
     fsm_error = p101_error_create(false);
     fsm_env   = p101_env_create(fsm_error, NULL);
     fsm       = NULL;
@@ -114,7 +136,7 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-static void parse_arguments(const struct p101_env *env, int argc, char *argv[], bool *bad, bool *will, bool *did)
+static void parse_arguments(const struct p101_env *env, struct p101_error *error, int argc, char *argv[], bool *bad, bool *will, bool *did, bool *show_help)
 {
     int opt;
 
@@ -141,36 +163,39 @@ static void parse_arguments(const struct p101_env *env, int argc, char *argv[], 
             }
             case 'h':
             {
-                usage(argv[0], EXIT_SUCCESS, NULL);
+                *show_help = true;
+                return;
             }
             case '?':
             {
                 if(optopt == 'c')
                 {
-                    usage(argv[0], EXIT_FAILURE, "Option '-c' requires a value.");
+                    P101_ERROR_RAISE_USER(error, "Option '-c' requires a value.", 1);
                 }
                 else
                 {
                     char message[UNKNOWN_OPTION_MESSAGE_LEN];
 
                     snprintf(message, sizeof(message), "Unknown option '-%c'.", optopt);
-                    usage(argv[0], EXIT_FAILURE, message);
+                    P101_ERROR_RAISE_USER(error, message, 1);
                 }
+                return;
             }
             default:
             {
-                usage(argv[0], EXIT_FAILURE, NULL);
+                P101_ERROR_RAISE_USER(error, "Invalid option.", 1);
+                return;
             }
         }
     }
 
     if(optind < argc)
     {
-        usage(argv[0], EXIT_FAILURE, "Too many arguments.");
+        P101_ERROR_RAISE_USER(error, "Too many arguments.", 1);
     }
 }
 
-_Noreturn static void usage(const char *program_name, int exit_code, const char *message)
+static void usage(const char *program_name, const char *message)
 {
     if(message)
     {
@@ -183,7 +208,6 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char 
     fputs("  -b   Display 'bad' transitions\n", stderr);
     fputs("  -w   Display 'will' transitions\n", stderr);
     fputs("  -d   Display 'did' transitions\n", stderr);
-    exit(exit_code);
 }
 
 #pragma GCC diagnostic push

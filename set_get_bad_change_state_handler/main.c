@@ -2,7 +2,7 @@
 #include <p101_fsm/fsm.h>
 #include <stdlib.h>
 
-static void custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
+static void custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
 
 int main(void)
 {
@@ -36,16 +36,16 @@ int main(void)
     {
         p101_fsm_info_bad_change_state_handler_func handler;
 
-        handler = p101_fsm_info_get_bad_change_state_handler(fsm);
+        handler = p101_fsm_info_get_bad_change_state_handler(env, fsm);
         p101_printf(env, error, "Default handler installed: %s\n", handler == p101_fsm_info_default_bad_change_state_handler ? "yes" : "no");
 
-        p101_fsm_info_set_bad_change_state_handler(fsm, custom_handler);
-        handler = p101_fsm_info_get_bad_change_state_handler(fsm);
+        p101_fsm_info_set_bad_change_state_handler(env, fsm, custom_handler);
+        handler = p101_fsm_info_get_bad_change_state_handler(env, fsm);
         p101_printf(env, error, "Custom handler installed: %s\n", handler == custom_handler ? "yes" : "no");
 
         /* NULL restores the safe default rather than leaving no policy. */
-        p101_fsm_info_set_bad_change_state_handler(fsm, NULL);
-        handler = p101_fsm_info_get_bad_change_state_handler(fsm);
+        p101_fsm_info_set_bad_change_state_handler(env, fsm, NULL);
+        handler = p101_fsm_info_get_bad_change_state_handler(env, fsm);
         p101_printf(env, error, "NULL restored default: %s\n", handler == p101_fsm_info_default_bad_change_state_handler ? "yes" : "no");
     }
 
@@ -64,7 +64,7 @@ done:
     return ret_val;
 }
 
-static void custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)
+static void custom_handler(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)
 {
     (void)env;
     (void)err;

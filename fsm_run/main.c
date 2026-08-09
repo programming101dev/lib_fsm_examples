@@ -11,9 +11,9 @@ static void a(const struct p101_env *env, struct p101_error *err, void *arg, str
 static void b(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
 static void c(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
 static void state_error(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision);
-static void will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
-static void did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id, p101_fsm_state_t next_state_id);
-static void bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id);
+static void will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id);
+static void did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id, p101_fsm_state_id next_state_id);
+static void bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id);
 
 enum application_states
 {
@@ -97,17 +97,17 @@ int main(int argc, char *argv[])
 
         if(bad)
         {
-            p101_fsm_info_set_bad_change_state_notifier(fsm, bad_change_state_notifier_func);
+            p101_fsm_info_set_bad_change_state_notifier(env, fsm, bad_change_state_notifier_func);
         }
 
         if(will)
         {
-            p101_fsm_info_set_will_change_state_notifier(fsm, will_change_state_notifier_func);
+            p101_fsm_info_set_will_change_state_notifier(env, fsm, will_change_state_notifier_func);
         }
 
         if(did)
         {
-            p101_fsm_info_set_did_change_state_notifier(fsm, did_change_state_notifier_func);
+            p101_fsm_info_set_did_change_state_notifier(env, fsm, did_change_state_notifier_func);
         }
 
         count  = 0;
@@ -253,8 +253,8 @@ static void b(const struct p101_env *env, struct p101_error *err, void *arg, str
 
 static void c(const struct p101_env *env, struct p101_error *err, void *arg, struct p101_fsm_effect_sink *sink, struct p101_fsm_decision *decision)    // cppcheck-suppress constParameterCallback
 {
-    int             *count;
-    p101_fsm_state_t next_state;
+    int              *count;
+    p101_fsm_state_id next_state;
 
     P101_TRACE(env);
     (void)err;
@@ -291,20 +291,20 @@ static void state_error(const struct p101_env *env, struct p101_error *err, void
 
 #pragma GCC diagnostic pop
 
-static void will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id)    // cppcheck-suppress constParameterCallback
+static void will_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id)    // cppcheck-suppress constParameterCallback
 {
     P101_TRACE(env);
     printf("%s will change from %d to %d\n", p101_fsm_info_get_name(env, info), from_state_id, to_state_id);
 }
 
-static void did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id,    // cppcheck-suppress constParameterCallback
-                                           p101_fsm_state_t next_state_id)
+static void did_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id,    // cppcheck-suppress constParameterCallback
+                                           p101_fsm_state_id next_state_id)
 {
     P101_TRACE(env);
     printf("%s did change from %d to %d\n", p101_fsm_info_get_name(env, info), from_state_id, to_state_id);
 }
 
-static void bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_t from_state_id, p101_fsm_state_t to_state_id)    // cppcheck-suppress constParameterCallback
+static void bad_change_state_notifier_func(const struct p101_env *env, struct p101_error *err, const struct p101_fsm_info *info, p101_fsm_state_id from_state_id, p101_fsm_state_id to_state_id)    // cppcheck-suppress constParameterCallback
 {
     P101_TRACE(env);
     printf("%s can't change from %d to %d\n", p101_fsm_info_get_name(env, info), from_state_id, to_state_id);
